@@ -1,5 +1,9 @@
 
+APP_URL='http://178.79.162.29:8080/'
 ALPHABET='0123456789abcdefghijklmnopqrstuvwxyz'
+
+#CACHE
+CACHE_ENTRIES = 10
 
 #DB
 DB_ADDRESS = '127.0.0.1:21201'

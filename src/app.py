@@ -1,30 +1,40 @@
-from config import *
 import memcache
-import cache
+import urlparse
+
+from config import *
+from cache import Cache
 
 class App:
 
 	def __init__(self):
 		self.db = memcache.Client([DB_ADDRESS], debug=0)
-		self.cache = Memcache() 
-		self.nextCode = 0
+		self.cache = Cache(CACHE_ENTRIES)
+		self.nextCodeCount = self._get_code_count()
 		
 	def get_short_url(self, longUrl):
 		code = self._get_next_code()
-		db.set(code, longUrl)
-		return code
+		self.db.set(code, longUrl)
+		self.db.set("_nextCodeCount", self.nextCodeCount)
+		return "Short URL: " + APP_URL + code
 			
 	def get_long_url(self, shortUrl):
 		longUrl = self.cache.get(shortUrl)
 		if not longUrl:
 			longUrl = self.db.get(shortUrl)
-		
+			if longUrl:
+				self.cache.set(shortUrl, longUrl)
 		return longUrl
 	
+	def _get_code_count(self):
+		lastCodeCount = self.db.get("_nextCodeCount")
+		if lastCodeCount:
+			return lastCodeCount
+		else:
+			return 0
 	
 	def _get_next_code(self):
-		code = self._alphabet_encode(self.nextCode)
-		self.nextCode += 1
+		code = self._alphabet_encode(self.nextCodeCount)
+		self.nextCodeCount += 1
 		return code
 		
 	def _alphabet_encode(self, num):
@@ -39,14 +49,3 @@ class App:
 		    code = ALPHABET[i] + code
 	 
 		return code
-		
-a = App()
-urls = []
-for i in range(900, 1000, 1):
-	urls.append(a.get_short_url(i))
-	print urls[-1]
-	
-print "DECODING"
-	
-for i in range(0, 100, 1):
-	print a.get_long_url(urls[i])

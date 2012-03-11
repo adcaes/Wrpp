@@ -26,8 +26,8 @@ class DoublyLinkedList:
 		node.next.prev = node.prev
 		node.prev.netx = node.next
 
-class Memcached:
-	def __init__(self):
+class Cache:
+	def __init__(self, size=1000):
 		self.index = {}
 		self.list = DoublyLinkedList() 
 		
@@ -43,17 +43,6 @@ class Memcached:
 			return node.data
 		else:
 			return None
-		
-		
-m = Memcached()
 
-for i in range(900, 1000, 1):
-	m.set(i, i)
-	
-print "DECODING"
-	
-for i in range(999, 899, -1):
-	a = m.get(i)
-	print str(a) + " " + str(i)
 
 

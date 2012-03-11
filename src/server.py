@@ -5,10 +5,12 @@ from twisted.internet import reactor
 from app import App
 
 class ServerTop(Resource):
-	def __init__(self, app):
+	def __init__(self):
 		Resource.__init__(self)
-		self.app = app
-		self.form = open('/home/adria/Wrpp/views/base.html', 'r').read()
+		self.app = App()
+		self.serverShorten = ServerShorten(self.app)
+		self.serverRedirect = ServerRedirect(self.app)
+		self.form = open('../views/base.html', 'r').read()
 
 	def render_GET(self, request):
 		return self.form
@@ -17,43 +19,46 @@ class ServerTop(Resource):
 		if path == '':
 			return self
 		elif path == '_shorten':
-			return ServerShorten(self.app)
-		#return Resource.getChild(self, name, request)
+			return self.serverShorten
 		else:
-			return ServerRedirect(self.app, path)
+			self.serverRedirect.setPath(path)
+			return self.serverRedirect
 
 class ServerShorten(Resource):
 	isLeaf = True
 	def __init__(self, app):
 		Resource.__init__(self)
 		self.app = app
-		self.form = open('/home/adria/Wrpp/views/base.html', 'r').read()
+		self.form = open('../views/base.html', 'r').read()
 
 	def render_POST(self, request):
+		print "longURL " + request.args['url'][0]
 		return self.app.get_short_url(request.args['url'][0])
 		
 class ServerRedirect(Resource):
 	isLeaf = True
-	def __init__(self, app, path):
+	def __init__(self, app):
 		Resource.__init__(self)
 		self.app = app
+		self.form1 = open('../views/redirect.html', 'r').read()
+		self.form2 = open('../views/redirect2.html', 'r').read()
+	
+	def setPath(self, path):
 		self.path = path
-		self.form = open('/home/adria/Wrpp/views/base.html', 'r').read()
-
+	
 	def render_GET(self, request):
-		print "path" + self.path
-		return self.app.get_long_url(self.path)
+		print "Enter redirect, path= " + self.path
+		longUrl = self.app.get_long_url(self.path)
+		if longUrl:
+			print "longUrl " + longUrl
+			return self.form1 + "window.location=\"" + longUrl + "\";" + self.form2;
+		else:
+			print "ERROR: URL code " + self.path + " not found."
+			return "ERROR: URL code " + self.path + " not found."
 
 
-app = App()
-
-root = ServerTop(app)
-#shorten = ServerShorten(app)
-#resolve = ServerRedirect(app)
-
-#root.putChild('#shorten', shorten)
-#root.putChild('#shorten', resolve)
+root = ServerTop()
 
 factory = Site(root)
-reactor.listenTCP(8080, factory)
+reactor.listenTCP(8888, factory)
 reactor.run()
