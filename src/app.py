@@ -1,25 +1,30 @@
 from config import *
+import memcache
+import cache
 
 class App:
 
 	def __init__(self):
-		self.urls = {}
-		self.nextShort = 0
+		self.db = memcache.Client([DB_ADDRESS], debug=0)
+		self.cache = Memcache() 
+		self.nextCode = 0
 		
 	def get_short_url(self, longUrl):
 		code = self._get_next_code()
-		self.urls[code] = longUrl
+		db.set(code, longUrl)
 		return code
 			
 	def get_long_url(self, shortUrl):
-		if shortUrl in self.urls:
-			return self.urls[shortUrl] 
-		else:
-			return "URL Not Found"
+		longUrl = self.cache.get(shortUrl)
+		if not longUrl:
+			longUrl = self.db.get(shortUrl)
+		
+		return longUrl
+	
 	
 	def _get_next_code(self):
-		code = self._alphabet_encode(self.nextShort)
-		self.nextShort += 1
+		code = self._alphabet_encode(self.nextCode)
+		self.nextCode += 1
 		return code
 		
 	def _alphabet_encode(self, num):
@@ -33,4 +38,15 @@ class App:
 		    num, i = divmod(num, len(ALPHABET))
 		    code = ALPHABET[i] + code
 	 
-		return code	
+		return code
+		
+a = App()
+urls = []
+for i in range(900, 1000, 1):
+	urls.append(a.get_short_url(i))
+	print urls[-1]
+	
+print "DECODING"
+	
+for i in range(0, 100, 1):
+	print a.get_long_url(urls[i])
