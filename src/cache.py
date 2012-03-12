@@ -16,7 +16,7 @@ class DoublyLinkedList:
 		newNode.next = self.root.next
 		newNode.prev = self.root
 		newNode.next.prev = newNode
-		newNode.prev.next = newNode
+		self.root.next = newNode
 		
 	def moveToHead(self, node):
 		self.remove(node)
@@ -24,41 +24,50 @@ class DoublyLinkedList:
 
 	def removeLast(self):
 		n = self.root.prev
-		self.list.remove(n)
+		self.remove(n)
 		return n.data
 	
 	def remove(self, node):
 		node.next.prev = node.prev
-		node.prev.netx = node.next
+		node.prev.next = node.next
+	
+	def toPrint(self):
+		print "id " + str(id(self.root)) + " value " + str(self.root.data)
+		current = self.root.next
+		count = 0
+		while current.data != self.root.data and count < 10:
+			print "id " + str(id(current)) + " value " + str(current.data)
+			current = current.next
+			count += 1
 
 class Cache:
 	def __init__(self, maxSize=1000):
 		self.index = {}
-		self.list = DoublyLinkedList()
+		self.lru = DoublyLinkedList()
 		self.maxSize = maxSize
 		self.size = 0
 	
-	# Adds a (value, key) pair to the cache
-	# If the cache is full the least recently used element is deleted
 	def set(self, key, value):
-		if self.size > self.maxSize:
-			(key, value) = self.list.removeLast()
-			del self.index[key]
+		if self.size >= self.maxSize:
+			# If the cache is full, the least recently used element is deleted
+			(key_del, _) = self.lru.removeLast()
+			del self.index[key_del]
 		else:
 			self.size += 1
-			
+				
+		# Add (value, key) pair to the cache
 		node = Node((key, value))
-		self.list.insertHead(node)
+		self.lru.insertHead(node)
 		self.index[key] = node		
 	
-	# Gets the value associtaed with key from the cache
-	# Returns None if the key is not present	
 	def get(self, key):
 		if key in self.index:
+			# If key in cache, return the associated value
 			node = self.index[key]
-			self.list.moveToHead(node)
+			self.lru.moveToHead(node)
 			return node.data[1]
 		else:
+			# Returns None if the key is not present	
 			return None
 
 
