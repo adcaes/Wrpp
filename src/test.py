@@ -1,6 +1,6 @@
 import random
 
-#from app import App
+from app import App
 from cache import Cache, DoublyLinkedList, Node
 
 class Test:
@@ -13,7 +13,7 @@ class Test:
 		
 		# Retrieve n elements, (0, n]
 		for i in range(0, n):
-			r = i#random.randrange(0, n)
+			r = random.randrange(0, n)
 			assert r+1 == m.get(r)
 		
 		# Insert n elements, (n, n+n]
@@ -38,25 +38,28 @@ class Test:
 		for url in range(0, n/2):
 			short = a.get_short_url(url)
 			assert type(short) == str
+			assert short[0] == '0'
 			urls[short] = url
 	
 		# Retrive n/2 long urls from short urls
 		for shortUrl in urls.iterkeys():
-			assert urls[shortUrl] == a.get_long_url(i)
+			assert urls[shortUrl] == a.get_long_url(shortUrl)
 			
 		# Shorten n/2 URLS
 		for url in range(n/2, n):
 			short = a.get_short_url(url)
 			assert type(short) == str
+			assert short[0] == '0'
 			urls[short] = url
 	
 		# Retrive n long urls from short urls
 		for shortUrl in urls.iterkeys():
-			assert urls[shortUrl] == a.get_long_url(i)
+			assert urls[shortUrl] == a.get_long_url(shortUrl)
 			
 
 if __name__ == "__main__":
 	t = Test()
-	#t.testCacheDll(1)
-	t.testCache(3)
-	#t.testApp(5000)
+	print "Runing tests..."
+	t.testCache(5000)
+	t.testApp(5000)
+	print "All tests passed"

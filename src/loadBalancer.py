@@ -27,10 +27,9 @@ class LoadBalancer(Resource):
 			return self.serverPointer
 		else:
 			# Request redirect given short URL with valid prefix
-			if PREFIXES.count(path[0]) > 0:
-				# Return serverId that handles the requested short url
-				pos = PREFIXES.index(path[0])
-				return pos
+			# Return serverId that handles the requested short url
+			pos = PREFIXES.index(path[0])
+			return pos
 				
 if __name__ == "__main__":
 	root = LoadBalancer()

@@ -19,8 +19,14 @@ class App:
 	def get_short_url(self, longUrl):
 		# Generate a code for the URL
 		code = self.prefix + self._get_next_code()
-		# Store in the DB the mapping between the URL and the code
+		# Check if URL starts with valid schema id (http or https)
+		if not (longUrl[:7] == "http://" or longUrl[:8] == "https://"):
+			# If not add schema id to url (needed to redirect when requested)
+			longUrl = 'http://' + longUrl
+			
+		# Store in the DB and the Cache the mapping between the URL and the code
 		self.db.set(code, longUrl)
+		self.cache.set(code, longUrl)
 		# Return short url
 		return code
 			
