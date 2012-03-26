@@ -49,3 +49,16 @@ Running
 
 runner.sh is a very primitive running script configured to create two App Servers, a Load Balancer and two DB instances, one for each App Server. 
 All the elements will be created in the machine where the script is executed.
+
+
+
+
+
+
+
+
+
+
+--------------------------
+GUILLEM
+--------------------------
